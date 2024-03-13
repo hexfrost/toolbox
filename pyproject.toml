@@ -1,9 +1,12 @@
 [tool.poetry]
 name = "hexfrost-toolbox"
-version = "0.1.0"
+version = "0.1.1"
 description = "Open source library with useful tools for fast development apps on FastAPI, Aiogram and SQLAlchemy"
 authors = ["Kaziamov <kaziamov@outlook.com>"]
 readme = "README.md"
+packages = [
+    { include = "toolbox" },
+]
 
 [tool.poetry.dependencies]
 python = ">=3.8.1,<4.0"
