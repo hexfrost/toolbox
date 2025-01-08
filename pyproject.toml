@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "hexfrost-toolbox"
-version = "0.1.2"
-description = "Open source library with useful tools for fast development apps on FastAPI, Aiogram and SQLAlchemy"
+version = "0.1.3"
+description = "Open source library with useful utils for fast development"
 authors = ["Kaziamov <kaziamov@outlook.com>"]
 readme = "README.md"
 packages = [
@@ -10,7 +10,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.8.1,<4.0"
-hexfrost-simplecrud = "^0.3.0"
+hexfrost-simplecrud = ">=0.3.0"
 
 
 [build-system]
