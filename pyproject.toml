@@ -22,3 +22,10 @@ name = "hexfrost-toolbox"
 version = "0.1.4b"
 description = "Open source library with useful utils for fast development"
 readme = "README.md"
+
+[dependency-groups]
+dev = [
+    "pytest==8.0.0",
+    "pytest-asyncio==0.23.5",
+    "pytest-mock==3.12.0",
+]
