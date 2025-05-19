@@ -1,18 +1,38 @@
-[tool.poetry]
-name = "hexfrost-toolbox"
-version = "0.1.3"
-description = "Open source library with useful utils for fast development"
-authors = ["Kaziamov <kaziamov@outlook.com>"]
-readme = "README.md"
-packages = [
-    { include = "toolbox" },
+[tool.pdm.build]
+includes = [
+    "toolbox",
 ]
-
-[tool.poetry.dependencies]
-python = ">=3.8.1,<4.0"
-hexfrost-simplecrud = ">=0.3.0"
-
-
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[project]
+authors = [
+    {name = "Kaziamov", email = "kaziamov@outlook.com"},
+]
+requires-python = ">=3.9,<4.0"
+dependencies = [
+    "cryptography>=44.0.3",
+    "fastapi>=0.115.12",
+    "pydantic>=2.10.6",
+    "sqlalchemy>=2.0.40",
+]
+name = "hexfrost-toolbox"
+version = "0.1.4b"
+description = "Open source library with useful utils for fast development"
+readme = "README.md"
+
+[dependency-groups]
+dev = [
+    "pytest==8.0.0",
+    "pytest-asyncio==0.23.5",
+    "pytest-mock==3.12.0",
+    "pytest-cov>=6.0.0",
+    "pre-commit>=4.1.0",
+    "anyio[trio]>=3.7.1",
+    "httpx==0.28.1",
+    "asyncpg>=0.30.0",
+#    "pytest-postgresql>=7.0.2",
+#    "psycopg2-binary>=2.9.10",
+]
