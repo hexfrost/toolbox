@@ -1,6 +1,6 @@
 from sqlalchemy import select
 
-from tests.fixtures.database import database_connector
+from tests.fixtures.database import db_settings, database_connector
 
 
 async def test_fastapi_depends_itegration_test_2(database_connector):
@@ -16,3 +16,8 @@ async def test_fastapi_depends_itegration_test_2(database_connector):
     async with debug_client(app) as client:
         response1 = await client.get('/')
         assert response1.status_code == 200
+
+
+async def test_create_and_drop_temporary_database(database_connector):
+    db_conn_factory = database_connector
+    pass
