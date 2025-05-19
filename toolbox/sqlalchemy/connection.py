@@ -1,13 +1,17 @@
-from functools import cache
+import logging
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator
 
-from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.pool import NullPool
 
+logger = logging.getLogger(__name__)
 
-class DatabaseConnection:
+
+class DatabaseConnectionSettings:
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_HOST: str
@@ -17,7 +21,7 @@ class DatabaseConnection:
 
 class DatabaseConnectionManager:
     
-    def __init__(self, settings: DatabaseConnection):
+    def __init__(self, settings: DatabaseConnectionSettings):
         self._engine = None
         self._async_sessionmaker = None
         self._settings = settings
@@ -49,5 +53,27 @@ class DatabaseConnectionManager:
             )
         return self._async_sessionmaker
 
+    @asynccontextmanager
+    async def get_db_session(self) -> AsyncGenerator[AsyncSession, None]:
+        session_maker = self.get_session_maker()
+        async with session_maker() as session:
+            try:
+                yield session
+                await session.commit()
+            except Exception:
+                await session.rollback()
+                raise
+            finally:
+                await session.close()
 
-# TODO: add depends for fastapi
+    async def __call__(self):
+        session_maker = self.get_session_maker()
+        async with session_maker() as session:
+            try:
+                yield session
+                await session.commit()
+            except Exception:
+                await session.rollback()
+                raise
+            finally:
+                await session.close()
