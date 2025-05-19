@@ -2,32 +2,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from toolbox.sqlalchemy.connection import DatabaseConnectionSettings, DatabaseConnectionManager
-
-
-@pytest.fixture
-def db_settings():
-    class TestSettings(DatabaseConnectionSettings):
-        POSTGRES_USER = "postgres"
-        POSTGRES_PASSWORD = "postgres"
-        POSTGRES_HOST = "0.0.0.0"
-        POSTGRES_PORT = "5432"
-        POSTGRES_DB = "test_postgres"
-
-    return TestSettings
-
-
-@pytest.fixture
-def mock_engine():
-    return MagicMock(spec=AsyncEngine)
-
-
-@pytest.fixture(scope="function")
-def database_connector(db_settings):
-    dc = DatabaseConnectionManager(settings=db_settings)
-    return dc
+from tests.fixtures.database import db_settings, mock_engine, database_connector
 
 
 @pytest.mark.asyncio
@@ -101,6 +78,8 @@ async def test_fastapi_depends_itegration_test(database_connector):
     ) as client:
         response1 = await client.get('/')
         assert response1.status_code == 200
+
+
 
 
 async def test_get_db_connect_context_works(database_connector):
