@@ -9,8 +9,10 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def debug_client(app, app_path: str = "http://test"):
     from httpx import ASGITransport, AsyncClient
+
     async with AsyncClient(
-            transport=ASGITransport(app=app), base_url=app_path,
+        transport=ASGITransport(app=app),
+        base_url=app_path,
     ) as client:
         yield client
         pass
@@ -23,6 +25,7 @@ async def temporary_database(settings: "DatabaseConnectionSettings", base_model,
     settings.POSTGRES_DB = test_db_name
 
     from toolbox.sqlalchemy.connection import DatabaseConnectionManager
+
     connection_factory = DatabaseConnectionManager(settings=original_settings)
 
     dsn = settings.get_dsn()

@@ -26,7 +26,6 @@ class DatabaseConnectionSettings:
 
 
 class DatabaseConnectionManager:
-    
     def __init__(self, settings: DatabaseConnectionSettings):
         self._engine = None
         self._async_sessionmaker = None
@@ -34,7 +33,7 @@ class DatabaseConnectionManager:
 
     def _get_settings(self):
         if not self._settings:
-            raise RuntimeError('No settings available')
+            raise RuntimeError("No settings available")
         return self._settings
 
     def set_engine(self, engine: AsyncEngine):
