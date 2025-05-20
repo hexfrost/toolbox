@@ -82,3 +82,6 @@ class DatabaseConnectionManager:
                 raise
             finally:
                 await session.close()
+
+
+__all__ = ["DatabaseConnectionManager", "DatabaseConnectionSettings"]

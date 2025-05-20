@@ -53,7 +53,7 @@ def mock_session():
 @patch('toolbox.sqlalchemy.connection.DatabaseConnectionManager')
 async def test_add_one(mock_db_manager, mock_session, test_data):
     session_maker, session = mock_session
-    await TestCrudManager.add_one(session_maker, test_data)
+    await TestCrudManager.add_one(session, test_data)
 
     session.add.assert_called_once()
     added_model = session.add.call_args[0][0]
@@ -80,7 +80,7 @@ async def test_get_all(mock_db_manager, mock_session):
 
     session.execute.return_value = db_operation_result_mock
 
-    result = await TestCrudManager.get_all(session_maker, limit=10, offset=0)
+    result = await TestCrudManager.get_all(session, limit=10, offset=0)
 
     session.execute.assert_called_once()
     query = session.execute.call_args[0][0]
@@ -100,7 +100,7 @@ async def test_get_all_with_custom_limit_offset(mock_db_manager, mock_session):
     db_operation_result_mock.all.return_value = []
     session.execute.return_value = db_operation_result_mock
 
-    await TestCrudManager.get_all(session_maker, limit=5, offset=10)
+    await TestCrudManager.get_all(session, limit=5, offset=10)
 
     session.execute.assert_called_once()
     query = session.execute.call_args[0][0]
@@ -120,7 +120,7 @@ async def test_get_all_empty_result(mock_db_manager, mock_session):
     execute_result.all.return_value = []
     session.execute.return_value = execute_result
 
-    result = await TestCrudManager.get_all(session_maker)
+    result = await TestCrudManager.get_all(session)
 
     assert result == []
     session.execute.assert_called_once()
