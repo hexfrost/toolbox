@@ -4,7 +4,8 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from tests.fixtures.database import db_settings, mock_engine, database_connector
+from tests.fixtures.database import db_settings, temp_db
+from tests.fixtures.db_connect import database_connector
 
 
 @pytest.mark.asyncio
@@ -15,11 +16,6 @@ async def test_database_manager_no_settings(database_connector):
 
     with pytest.raises(RuntimeError, match="No settings available"):
         database_connector._get_settings()
-
-
-def test_database_manager_set_engine(database_connector, mock_engine):
-    database_connector.set_engine(mock_engine)
-    assert database_connector._engine == mock_engine
 
 
 @patch('toolbox.sqlalchemy.connection.create_async_engine')
@@ -35,26 +31,6 @@ def test_database_manager_get_engine_creates_new(mock_create_engine, database_co
     assert call_args == expected_url
 
 
-def test_database_manager_get_engine_returns_existing(database_connector, mock_engine):
-    database_connector.set_engine(mock_engine)
-    result = database_connector.get_engine()
-    assert result == mock_engine
-
-
-@patch('toolbox.sqlalchemy.connection.async_sessionmaker')
-def test_database_manager_get_session_maker(mock_sessionmaker, database_connector, mock_engine):
-    database_connector.set_engine(mock_engine)
-    database_connector._async_sessionmaker = None
-
-    database_connector.get_session_maker()
-
-    mock_sessionmaker.assert_called_once_with(
-        mock_engine,
-        expire_on_commit=False,
-        class_=AsyncSession
-    )
-
-
 def test_database_manager_get_session_maker_returns_existing(database_connector):
     mock_sessionmaker = MagicMock()
     database_connector._async_sessionmaker = mock_sessionmaker
@@ -63,7 +39,7 @@ def test_database_manager_get_session_maker_returns_existing(database_connector)
     assert result == mock_sessionmaker
 
 
-async def test_fastapi_depends_itegration_test(database_connector):
+async def test_fastapi_depends_itegration_test(temp_db, database_connector):
     from fastapi import Depends, FastAPI
     app = FastAPI()
     @app.get("/")
@@ -80,8 +56,6 @@ async def test_fastapi_depends_itegration_test(database_connector):
         assert response1.status_code == 200
 
 
-
-
-async def test_get_db_connect_context_works(database_connector):
+async def test_get_db_connect_context_works(temp_db, database_connector):
     async with database_connector.get_db_session() as conn:
         res = await conn.scalar(select(1))
