@@ -1,3 +1,4 @@
+import dataclasses
 import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
@@ -11,12 +12,17 @@ from sqlalchemy.pool import NullPool
 logger = logging.getLogger(__name__)
 
 
+@dataclasses.dataclass
 class DatabaseConnectionSettings:
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_HOST: str
     POSTGRES_PORT: str
     POSTGRES_DB: str
+
+    def get_dsn(self):
+        dsn = f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+        return dsn
 
 
 class DatabaseConnectionManager:
