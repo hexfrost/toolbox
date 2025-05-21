@@ -54,6 +54,30 @@ async def temp_db(db_settings):
         pass
 ```
 
+### Database Connect
+
+```python
+from fastapi import Depends, FastAPI
+from toolbox.sqlalchemy.connection import DatabaseConnectionManager, DatabaseConnectionSettings
+
+
+settings = DatabaseConnectionSettings(
+        POSTGRES_USER="postgres",
+        POSTGRES_PASSWORD = "postgres",
+        POSTGRES_HOST = "0.0.0.0",
+        POSTGRES_PORT = "5432",
+        POSTGRES_DB = "postgres"
+    )
+
+get_db_conn = DatabaseConnectionManager(settings=settings)
+
+app = FastAPI()
+
+@app.get("/")
+async def index(database_conn = Depends(get_db_conn)):
+    ...
+```
+
 ### Auth Middleware
 #### FastAPI
 
