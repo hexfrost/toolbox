@@ -10,8 +10,7 @@ async def test_fastapi_depends_itegration_test_2(temp_db, db_settings, database_
     app = FastAPI()
     @app.get("/")
     async def index(database_conn = Depends(database_connector)):
-        async with database_conn:
-            res = await database_conn.scalar(select(1))
+        await database_conn.scalar(select(1))
         return {"status": "ok"}
 
     from toolbox.testing import debug_client
