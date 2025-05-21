@@ -1,3 +1,5 @@
+from fastapi import FastAPI
+
 # hexfrost-toolbox
 
 Open source library with useful utils for fast development
@@ -10,6 +12,20 @@ pip install hexfrost-toolbox
 ```
 
 ## Usage
+
+### Test Client
+
+```python
+from toolbox.testing import debug_client
+
+app = FastAPI()
+
+async with debug_client(app) as client:
+    response = await client.get('/')
+    assert response.status_code == 200
+```
+You can use app with this client for debug code like as `django.testclient`
+
 
 ### Test Database
 
