@@ -1,8 +1,10 @@
+import dataclasses
 from typing import ClassVar, Protocol
 
 from cryptography.fernet import Fernet
 
 
+@dataclasses.dataclass
 class CipherSuiteSettings:
     MASTER_KEY: str
 

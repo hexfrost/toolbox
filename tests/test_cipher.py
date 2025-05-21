@@ -6,8 +6,9 @@ from toolbox.cipher import CipherSuiteManager, CipherSuiteSettings
 
 @pytest.fixture
 def settings():
-    s = CipherSuiteSettings()
-    s.MASTER_KEY = Fernet.generate_key().decode()
+    s = CipherSuiteSettings(
+        MASTER_KEY = Fernet.generate_key().decode()
+    )
     return s
 
 
