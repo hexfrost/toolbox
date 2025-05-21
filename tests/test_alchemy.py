@@ -5,7 +5,7 @@ from sqlalchemy.orm import mapped_column, Mapped
 from sqlalchemy.sql.selectable import Select
 
 from toolbox.sqlalchemy.repositories import AbstractDatabaseCrudManager
-from toolbox.sqlalchemy.models import BaseModel
+from toolbox.sqlalchemy.models import BaseDatabaseModel
 from toolbox.schemes import BaseScheme, SensitiveDataScheme
 
 
@@ -17,14 +17,14 @@ class TestPydanticModel(BaseScheme):
         return self
 
 
-class TestSQLAlchemyModel(BaseModel):
+class TestSQLAlchemyDatabaseModel(BaseDatabaseModel):
     __tablename__ = "test_table"
     name: Mapped[str] = mapped_column(String, primary_key=True)
     value: Mapped[str] = mapped_column(String)
 
 
 class TestCrudManager(AbstractDatabaseCrudManager):
-    _alchemy_model = TestSQLAlchemyModel
+    _alchemy_model = TestSQLAlchemyDatabaseModel
     _pydantic_model = TestPydanticModel
 
 
@@ -57,7 +57,7 @@ async def test_add_one(mock_db_manager, mock_session, test_data):
 
     session.add.assert_called_once()
     added_model = session.add.call_args[0][0]
-    assert isinstance(added_model, TestSQLAlchemyModel)
+    assert isinstance(added_model, TestSQLAlchemyDatabaseModel)
     assert added_model.name == test_data.name
     assert added_model.value == test_data.value
 
@@ -71,8 +71,8 @@ async def test_get_all(mock_db_manager, mock_session):
     session_maker, session = mock_session
 
     test_models = [
-        TestSQLAlchemyModel(name="test1", value="value1"),
-        TestSQLAlchemyModel(name="test2", value="value2")
+        TestSQLAlchemyDatabaseModel(name="test1", value="value1"),
+        TestSQLAlchemyDatabaseModel(name="test2", value="value2")
     ]
 
     db_operation_result_mock = MagicMock()
@@ -87,7 +87,7 @@ async def test_get_all(mock_db_manager, mock_session):
     assert isinstance(query, Select)
 
     assert len(result) == 2
-    assert all(isinstance(item, TestSQLAlchemyModel) for item in result)
+    assert all(isinstance(item, TestSQLAlchemyDatabaseModel) for item in result)
     assert result == test_models
 
 

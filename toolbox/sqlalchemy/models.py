@@ -11,5 +11,5 @@ def lenient_constructor(self, **kwargs):
 registry = orm.registry(constructor=lenient_constructor)
 
 
-class BaseModel(orm.DeclarativeBase):
+class BaseDatabaseModel(orm.DeclarativeBase):
     registry = registry

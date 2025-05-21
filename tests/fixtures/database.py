@@ -22,9 +22,7 @@ def db_settings():
 @pytest.fixture(autouse=True)
 async def temp_db(db_settings):
     from toolbox.testing import temporary_database
-    from toolbox.sqlalchemy.models import BaseModel
-    async with temporary_database(settings=db_settings, base_model=BaseModel):
+    from toolbox.sqlalchemy.models import BaseDatabaseModel
+    async with temporary_database(settings=db_settings, base_model=BaseDatabaseModel):
         yield
         pass
-
-
