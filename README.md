@@ -48,11 +48,11 @@ from your_project.alchemy_models import BaseModel
 @pytest.fixture(autouse=True)
 def db_settings():
     data = DatabaseConnectionSettings(
-        POSTGRES_USER="postgres",
-        POSTGRES_PASSWORD = "postgres",
-        POSTGRES_HOST = "0.0.0.0",
-        POSTGRES_PORT = "5432",
-        POSTGRES_DB = "postgres"
+        POSTGRES_USER="postgres", # Required
+        POSTGRES_PASSWORD = "postgres", # Required
+        POSTGRES_HOST = "0.0.0.0", # Required
+        POSTGRES_PORT = "5432", # Required
+        POSTGRES_DB = "postgres" # Required
     )
 
     return data
@@ -76,11 +76,11 @@ from toolbox.sqlalchemy.connection import DatabaseConnectionManager, DatabaseCon
 
 
 settings = DatabaseConnectionSettings(
-        POSTGRES_USER="postgres",
-        POSTGRES_PASSWORD = "postgres",
-        POSTGRES_HOST = "0.0.0.0",
-        POSTGRES_PORT = "5432",
-        POSTGRES_DB = "postgres"
+        POSTGRES_USER="postgres", # Required
+        POSTGRES_PASSWORD = "postgres", # Required
+        POSTGRES_HOST = "0.0.0.0", # Required
+        POSTGRES_PORT = "5432", # Required
+        POSTGRES_DB = "postgres" # Required
     )
 
 get_db_conn = DatabaseConnectionManager(settings=settings)
@@ -106,8 +106,8 @@ class TokenStorage:
 
 token_validator = TokenStorage()
 settings = BearerTokenMiddlewareSettings(
-    token_validator=token_validator,
-    exclude_paths=["/docs"]
+    token_validator=token_validator, # Required
+    exclude_paths=["/docs"] # Required
 )
 
 BearerTokenMiddleware.set_settings(settings)
@@ -115,6 +115,39 @@ BearerTokenMiddleware.set_settings(settings)
 app = FastAPI()
 app.add_middleware(BearerTokenMiddleware)
 
+```
+### Sensetive Fields in Pydantic Models
+
+```python
+import os
+from toolbox.schemes import SensitiveDataScheme
+from toolbox.cipher import CipherSuiteManager, CipherSuiteSettings
+
+
+settings = CipherSuiteSettings(
+    MASTER_KEY=os.getenv("MASTER_KEY") # Required
+)
+
+
+cipher_suite = CipherSuiteManager.set_settings(settings)
+
+
+SensitiveDataScheme.set_cipher_suite_manager(cipher_suite)
+
+
+class OpenAPIToken(SensitiveDataScheme):
+    _sensitive_attributes = ["token"]
+
+    default_model: str
+    token: str | bytes
+
+
+new_token = OpenAPIToken(
+        default_model = "o3-mini",
+        token = "sk-12fefx33k34h1v4h1cl14c"
+    ).encrypt_fields()
+
+unsafe_data = new_token.decrypt_fields()
 ```
 
 ### Tools
