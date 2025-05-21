@@ -1,6 +1,4 @@
-from fastapi import FastAPI
-
-# hexfrost-toolbox
+# `hexfrost-toolbox` - batteries for FastAPI projects
 
 Open source library with useful utils for fast development
 
