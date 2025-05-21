@@ -4,11 +4,11 @@ from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from toolbox.schemes import SensitiveDataScheme
+from toolbox.sqlalchemy.models import BaseDatabaseModel
 
-from toolbox.schemes import SensitiveDataScheme, BaseScheme
-
-AnyPydanticModel = Annotated[BaseScheme, Depends(BaseScheme)]
-AnySQLAlchemyModel = Annotated[BaseScheme, Depends(SensitiveDataScheme)]
+AnyPydanticModel = Annotated[SensitiveDataScheme, Depends(SensitiveDataScheme)]
+AnySQLAlchemyModel = Annotated[BaseDatabaseModel, Depends(BaseDatabaseModel)]
 
 
 class AbstractDatabaseCrudManager:
