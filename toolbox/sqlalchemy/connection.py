@@ -1,3 +1,4 @@
+import dataclasses
 import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
@@ -11,6 +12,7 @@ from sqlalchemy.pool import NullPool
 logger = logging.getLogger(__name__)
 
 
+@dataclasses.dataclass
 class DatabaseConnectionSettings:
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
@@ -18,9 +20,12 @@ class DatabaseConnectionSettings:
     POSTGRES_PORT: str
     POSTGRES_DB: str
 
+    def get_dsn(self):
+        dsn = f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+        return dsn
+
 
 class DatabaseConnectionManager:
-    
     def __init__(self, settings: DatabaseConnectionSettings):
         self._engine = None
         self._async_sessionmaker = None
@@ -28,7 +33,7 @@ class DatabaseConnectionManager:
 
     def _get_settings(self):
         if not self._settings:
-            raise RuntimeError('No settings available')
+            raise RuntimeError("No settings available")
         return self._settings
 
     def set_engine(self, engine: AsyncEngine):
@@ -77,3 +82,6 @@ class DatabaseConnectionManager:
                 raise
             finally:
                 await session.close()
+
+
+__all__ = ["DatabaseConnectionManager", "DatabaseConnectionSettings"]

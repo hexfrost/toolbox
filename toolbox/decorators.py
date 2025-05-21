@@ -9,6 +9,8 @@ def async_to_sync(awaitable):
 
 def sync_to_async(func):
     """Run your sync code in async mode"""
+
     async def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
+
     return wrapper
