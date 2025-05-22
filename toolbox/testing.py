@@ -22,7 +22,6 @@ async def debug_client(app, app_path: str = "http://test"):
 
 
 class TemporaryDatabaseConnectionManager(DatabaseConnectionManager):
-    # TODO: create database with included connections and options or creae one or many tables from sql model
     pass
 
 
@@ -35,9 +34,13 @@ async def temporary_database(settings: "DatabaseConnectionSettings", base_model,
     dsn = settings.get_dsn().replace(f"/{settings.POSTGRES_DB}", "/postgres")
     async with asyncio.Lock() as lock:
         try:
-            conn = await asyncpg.connect(dsn=dsn)
-            await conn.execute(f"CREATE DATABASE {settings.POSTGRES_DB}")
-            await conn.close()
+            try:
+                conn = await asyncpg.connect(dsn=settings.get_dsn())
+                await conn.close()
+            except Exception as e:
+                conn = await asyncpg.connect(dsn=dsn)
+                await conn.execute(f"CREATE DATABASE {settings.POSTGRES_DB}")
+                await conn.close()
         except Exception as e:
             logger.error({"mgs": e})
             await conn.close()
@@ -48,6 +51,16 @@ async def temporary_database(settings: "DatabaseConnectionSettings", base_model,
                 await conn.run_sync(base_model.metadata.create_all)
             except Exception as e:
                 logger.error({"msg": e})
+
+        engine = db_manager.get_engine()
+        async with engine.begin() as connection:
+            try:
+                await connection.run_sync(base_model.metadata.create_all)
+
+            except Exception as e:
+                logger.error({"msg": f"Error creating schema: {e}"})
+
+                raise
 
         yield
 
