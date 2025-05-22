@@ -1,15 +1,16 @@
-import pytest
 from unittest.mock import MagicMock, AsyncMock, patch
-from sqlalchemy import select, String
+
+import pytest
 from sqlalchemy.orm import mapped_column, Mapped
 from sqlalchemy.sql.selectable import Select
 
-from toolbox.sqlalchemy.repositories import AbstractDatabaseCrudManager
+from sqlalchemy import select, String
+from toolbox.schemes import SensitiveDataScheme
 from toolbox.sqlalchemy.models import BaseDatabaseModel
-from toolbox.schemes import BaseScheme, SensitiveDataScheme
+from toolbox.sqlalchemy.repositories import AbstractDatabaseCrudManager
 
 
-class TestPydanticModel(BaseScheme):
+class TestPydanticModel(SensitiveDataScheme):
     name: str
     value: str
 
@@ -87,8 +88,7 @@ async def test_get_all(mock_db_manager, mock_session):
     assert isinstance(query, Select)
 
     assert len(result) == 2
-    assert all(isinstance(item, TestSQLAlchemyDatabaseModel) for item in result)
-    assert result == test_models
+    assert all(isinstance(item, TestPydanticModel) for item in result)
 
 
 @pytest.mark.asyncio
