@@ -21,6 +21,11 @@ async def debug_client(app, app_path: str = "http://test"):
         pass
 
 
+class TemporaryDatabaseConnectionManager(DatabaseConnectionManager):
+    # TODO: create database with included connections and options or creae one or many tables from sql model
+    pass
+
+
 @asynccontextmanager
 async def temporary_database(settings: "DatabaseConnectionSettings", base_model, db_prefix: str = "test"):
     original_settings = settings.__class__(**settings.__dict__)

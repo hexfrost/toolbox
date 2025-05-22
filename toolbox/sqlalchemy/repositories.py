@@ -21,6 +21,7 @@ class AbstractDatabaseCrudManager:
         conn.add(obj)
         await conn.commit()
         await conn.refresh(obj)
+        return obj
 
     @classmethod
     async def get_all(cls, conn: AsyncSession, limit: int = 100, offset: int = 0):

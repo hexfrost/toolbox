@@ -19,6 +19,7 @@ class DatabaseConnectionSettings:
     POSTGRES_HOST: str
     POSTGRES_PORT: str
     POSTGRES_DB: str
+    SCHEMA_MAPPING: dict | None = None
 
     def get_dsn(self):
         dsn = f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
@@ -30,6 +31,9 @@ class DatabaseConnectionManager:
         self._engine = None
         self._async_sessionmaker = None
         self._settings = settings
+        self._schema_mapping = {None: "public", "public": "public"}
+        if settings.SCHEMA_MAPPING:
+            self._schema_mapping.update(settings.SCHEMA_MAPPING)
 
     def _get_settings(self):
         if not self._settings:
@@ -46,7 +50,7 @@ class DatabaseConnectionManager:
             self._engine = create_async_engine(
                 f"postgresql+asyncpg://{s.POSTGRES_USER}:{s.POSTGRES_PASSWORD}@{db_host}:{s.POSTGRES_PORT}/{s.POSTGRES_DB}",
                 poolclass=NullPool,
-            )
+            ).execution_options(schema_translate_map=self._schema_mapping)
         return self._engine
 
     def get_session_maker(self):
@@ -65,7 +69,8 @@ class DatabaseConnectionManager:
             try:
                 yield session
                 await session.commit()
-            except Exception:
+            except Exception as e:
+                logger.error({"mgs": e})
                 await session.rollback()
                 raise
             finally:
@@ -77,7 +82,8 @@ class DatabaseConnectionManager:
             try:
                 yield session
                 await session.commit()
-            except Exception:
+            except Exception as e:
+                logger.error({"mgs": e})
                 await session.rollback()
                 raise
             finally:
