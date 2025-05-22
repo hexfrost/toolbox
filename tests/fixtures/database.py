@@ -3,23 +3,19 @@ import pytest
 from toolbox.sqlalchemy.connection import DatabaseConnectionSettings
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True, scope="session")
 def db_settings():
-    from pydantic import BaseModel
-    data = dict(
+    data = DatabaseConnectionSettings(
         POSTGRES_USER="postgres",
         POSTGRES_PASSWORD = "postgres",
         POSTGRES_HOST = "0.0.0.0",
         POSTGRES_PORT = "5432",
         POSTGRES_DB = "postgres"
     )
-    class TestSettings(BaseModel, DatabaseConnectionSettings):
-        pass
-
-    return TestSettings(**data)
+    return data
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True, scope="session")
 async def temp_db(db_settings):
     from toolbox.testing import temporary_database
     from toolbox.sqlalchemy.models import BaseDatabaseModel
