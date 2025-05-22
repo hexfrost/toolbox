@@ -1,7 +1,10 @@
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 
 import asyncpg
+
+from toolbox.sqlalchemy.connection import DatabaseConnectionManager
 
 logger = logging.getLogger(__name__)
 
@@ -24,21 +27,27 @@ async def temporary_database(settings: "DatabaseConnectionSettings", base_model,
     test_db_name = f"{db_prefix}_{original_settings.POSTGRES_DB}"
     settings.POSTGRES_DB = test_db_name
 
-    from toolbox.sqlalchemy.connection import DatabaseConnectionManager
+    dsn = settings.get_dsn().replace(f"/{settings.POSTGRES_DB}", "/postgres")
+    async with asyncio.Lock() as lock:
+        try:
+            conn = await asyncpg.connect(dsn=dsn)
+            await conn.execute(f"CREATE DATABASE {settings.POSTGRES_DB}")
+            await conn.close()
+        except Exception as e:
+            logger.error({"mgs": e})
+            await conn.close()
 
-    connection_factory = DatabaseConnectionManager(settings=original_settings)
+        db_manager = DatabaseConnectionManager(settings=settings)
+        async with db_manager.get_db_session() as conn:
+            try:
+                await conn.run_sync(base_model.metadata.create_all)
+            except Exception as e:
+                logger.error({"msg": e})
 
-    dsn = settings.get_dsn()
-    try:
-        conn = await asyncpg.connect(dsn=dsn)
-    except:
-        conn = await asyncpg.connect(dsn=dsn.replace(f"/{settings.POSTGRES_DB}", "/postgres"))
-        await conn.execute(f"CREATE DATABASE {settings.POSTGRES_DB}")
-
-    async_engine = connection_factory.get_engine()
-    async with async_engine.begin() as conn:
-        await conn.run_sync(base_model.metadata.create_all)
-        logger.debug({"msg": "Migration 'settings.POSTGRES_DB' was completed"})
         yield
 
-        await conn.run_sync(base_model.metadata.drop_all)
+    try:
+        conn = await asyncpg.connect(dsn=dsn)
+        await conn.execute(f"DROP DATABASE {settings.POSTGRES_DB}")
+    except Exception as e:
+        logger.error({"msg": e})
