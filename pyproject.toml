@@ -22,7 +22,7 @@ dependencies = [
     "sqlalchemy-utils>=0.41.2",
 ]
 name = "hexfrost-toolbox"
-version = "0.1.6"
+version = "0.1.6b"
 description = "Open source library with useful utils for fast development"
 readme = "README.md"
 

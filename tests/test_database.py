@@ -1,9 +1,8 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
+from sqlalchemy import select
 from tests.fixtures.database import db_settings, temp_db
 from tests.fixtures.db_connect import database_connector
 
