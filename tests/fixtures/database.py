@@ -9,7 +9,7 @@ def db_settings():
         POSTGRES_USER="postgres",
         POSTGRES_PASSWORD = "postgres",
         POSTGRES_HOST = "0.0.0.0",
-        POSTGRES_PORT = "5432",
+        POSTGRES_PORT = 5432,
         POSTGRES_DB = "postgres"
     )
     return data

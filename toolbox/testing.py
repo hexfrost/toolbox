@@ -52,17 +52,13 @@ async def temporary_database(settings: "DatabaseConnectionSettings", base_model,
             except Exception as e:
                 logger.error({"msg": e})
 
-        engine = db_manager.get_engine()
-        async with engine.begin() as connection:
-            try:
-                await connection.run_sync(base_model.metadata.create_all)
+    from sqlalchemy import create_engine
 
-            except Exception as e:
-                logger.error({"msg": f"Error creating schema: {e}"})
-
-                raise
-
-        yield
+    engine = create_engine(settings.get_dsn())
+    base_model.metadata.drop_all(bind=engine)
+    base_model.metadata.create_all(bind=engine)
+    yield
+    base_model.metadata.drop_all(bind=engine)
 
     try:
         conn = await asyncpg.connect(dsn=dsn)

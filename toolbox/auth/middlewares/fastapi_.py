@@ -40,6 +40,14 @@ class BearerTokenMiddleware(BaseHTTPMiddleware):
         cls._exclude_paths = settings.exclude_paths
         cls._token_validator = settings.token_validator
 
+    @classmethod
+    def update_settings(cls, token_validator=Callable, exclude_paths=None):
+        cls._token_validator = token_validator
+        if not exclude_paths:
+            cls._exclude_paths = []
+        else:
+            cls._exclude_paths = exclude_paths
+
     async def _is_token_valid(self, token: str) -> bool:
         if await self._token_validator(token):
             return True
